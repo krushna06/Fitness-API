@@ -52,7 +52,7 @@ app.use(
     secret: secretKey,
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: true }, // true if using HTTPS
+    cookie: { secure: false }, // true if using HTTPS
   })
 );
 
@@ -159,15 +159,14 @@ app.get("/fetch-data", async (req, res) => {
           {
             dataTypeName: "com.google.body.fat.percentage",
           },
-          {
-            dataTypeName: "com.google.menstruation",
-          },
         ],
         bucketByTime: { durationMillis: 86400000 }, // Aggregate data in daily buckets
         startTimeMillis,
         endTimeMillis,
       },
     });
+
+    console.log("Raw API Response:", JSON.stringify(response.data, null, 2)); // Log raw response for debugging
 
     const fitnessData = response.data.bucket;
     const formattedData = [];
@@ -186,7 +185,6 @@ app.get("/fetch-data", async (req, res) => {
         height_in_cms: 0,
         sleep_hours: 0,
         body_fat_in_percent: 0,
-        menstrual_cycle_start: "",
       };
 
       const datasetMap = data.dataset;
@@ -262,9 +260,6 @@ app.get("/fetch-data", async (req, res) => {
               }
               formattedEntry.body_fat_in_percent = bodyFat;
               break;
-            case "derived:com.google.menstruation:com.google.android.gms:merged":
-              formattedEntry.menstrual_cycle_start = mydataset.point[0]?.startTimeNanos || "";
-              break;
           }
         }
       });
@@ -272,7 +267,6 @@ app.get("/fetch-data", async (req, res) => {
       formattedData.push(formattedEntry);
     });
 
-    // Log the formatted data to the console
     console.log("User Name:", userName);
     console.log("Profile Photo URL:", profilePhoto);
     console.log("User ID:", userId);
@@ -284,6 +278,7 @@ app.get("/fetch-data", async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
 
 app.use(express.static(path.join(__dirname)));
 app.get("/", (req, res) => {
