@@ -43,7 +43,7 @@ const secretKey = crypto.randomBytes(32).toString("hex");
 const app = express();
 app.use(
   cors({
-    origin: "https://3000-krushna06-nullrepo-0ski0qx5643.ws-us115.gitpod.io",
+    origin: "https://3000-krushna06-fitnessapi-say3oseu5h3.ws-us115.gitpod.io",
   })
 );
 
