@@ -4,21 +4,16 @@ const { google } = require("googleapis");
 const path = require("path");
 const crypto = require("crypto");
 const cors = require("cors");
-const { Client, ID, Databases } = require("node-appwrite");
+const { Client, Databases } = require("node-appwrite");
 require("dotenv").config();
 
-const credentials = require("./creds.json");
-const { fitness } = require("googleapis/build/src/apis/fitness");
-
-const { client_secret, client_id, redirect_uris } = credentials.web;
 const oAuth2Client = new google.auth.OAuth2(
-  client_id,
-  client_secret,
-  redirect_uris[0]
+  process.env.CLIENT_ID,
+  process.env.CLIENT_SECRET,
+  process.env.REDIRECT_URI
 );
 
 const client = new Client();
-
 client
   .setEndpoint("https://cloud.appwrite.io/v1")
   .setProject(process.env.PROJECT_ID)
@@ -38,12 +33,13 @@ const SCOPES = [
   "https://www.googleapis.com/auth/fitness.reproductive_health.read",
   "https://www.googleapis.com/auth/userinfo.profile",
 ];
+
 const secretKey = crypto.randomBytes(32).toString("hex");
 
 const app = express();
 app.use(
   cors({
-    origin: "https://3000-krushna06-fitnessapi-say3oseu5h3.ws-us115.gitpod.io",
+    origin: process.env.JAVASCRIPT_ORIGINS,
   })
 );
 
@@ -55,6 +51,7 @@ app.use(
     cookie: { secure: false }, // true if using HTTPS
   })
 );
+
 
 let userProfileData;
 async function getUserProfile(auth) {
